@@ -35,11 +35,11 @@
             <div class="layui-inline">
                 <label class="layui-form-label" style="width:auto">登录时间：</label>
                 <div class="layui-input-inline" style="width: 150px;">
-                    <input type="text" name="BeginTime" id="BeginTime" lay-verify="date" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this, istime: true})">
+                    <input type="text" name="BeginTime" id="BeginTime" lay-verify="date" autocomplete="off" class="layui-input">
                 </div>
                 <div class="layui-form-mid">-</div>
                 <div class="layui-input-inline" style="width: 150px;">
-                    <input type="text" name="EndTime" id="EndTime" lay-verify="date" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this, istime: true})">
+                    <input type="text" name="EndTime" id="EndTime" lay-verify="date" autocomplete="off" class="layui-input">
                 </div>
             </div>
             <div class="layui-inline">
@@ -75,12 +75,12 @@
 <script>
     var pagecount, form, layer, laypage;
     var pagesize = 30;
-    //laydate.render({ elem: '#BeginTime' });
-    //laydate.render({ elem: '#EndTime' });
     layui.use(['form', 'layer','laydate'], function () {
         form = layui.form();
         layer = layui.layer;
         var laydate = layui.laydate;
+        laydate.render({ elem: '#BeginTime' });
+        laydate.render({ elem: '#EndTime' });
         initData();
     });
     function queryData() {
