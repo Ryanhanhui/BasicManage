@@ -1,0 +1,246 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>@ViewBag.System_Name</title>
+    <link href="@Url.Content("~/js/layui/css/layui.css")" rel="stylesheet" />
+    <script src="@Url.Content("~/js/jquery.min.js")"></script>
+    <script src="@Url.Content("~/js/layui/layui.js")"></script>
+    <link href="@Url.Content("~/css/main.css")" rel="stylesheet" />
+</head>
+<body>
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>用户管理<button class="layui-btn layui-btn-normal" style="margin-left:20px;" onclick="addClick()"><i class="layui-icon">&#xe654;</i> 新 增</button></legend>
+    </fieldset>
+    <div class="layui-form">
+        <div class="layui-form-item">
+            <div class="layui-inline" style="margin-right:0px;">
+                <label class="layui-form-label" style="width:auto">用户名：</label>
+                <div class="layui-input-inline" style="width: 150px;">
+                    <input type="text" name="UserId" id="UserId" lay-verify="title" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="width:auto">姓名：</label>
+                <div class="layui-input-inline" style="width: 150px;">
+                    <input type="text" name="Name" id="Name" lay-verify="title" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <button class="layui-btn" id="searchBtn" onclick="queryData();"><i class="layui-icon">&#xe615;</i> 查 询</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="layui-table" lay-even="">
+        <thead>
+            <tr>
+                <th style="width:10%">用户名</th>
+                <th style="width:15%">昵称</th>
+                <th style="width:15%">姓名</th>
+                <th style="width:10%">性别</th>
+                <th style="width:10%">年龄</th>
+                <th style="width:10%">用户角色</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+    <div style="float: left; margin-left: 15px;">
+        <div class="layuipagecount"><span id="mypagecount">共 1000 条</span></div>
+    </div>
+    <div id="mypage" style="margin-left:10px;float:left"></div>
+    <input id="hide_UserId" type="hidden" value="" />
+    <input id="hide_Name" type="hidden" value="" />
+</body>
+</html>
+<script>
+    var pagecount, form, layer, laypage;
+    var pagesize = 15;
+    layui.use(['form', 'layer'], function () {
+        form = layui.form();
+        layer = layui.layer;
+        initData();
+    });
+    function queryData() {
+        var loadingFlag = layer.load(0, {
+            shade: [0.2, '#fff'] //0.1透明度的白色背景
+        });
+        $("#hide_UserId").val($("#UserId").val());
+        $("#hide_Name").val($("#Name").val());
+        pagecount = getPageCount();
+        $("#mypagecount").text("共 " + pagecount + " 条 每页 " + pagesize + " 条");
+        layui.use('laypage', function () {
+            laypage = layui.laypage;
+            laypage({
+                cont: 'mypage'
+                , pages: Math.ceil(pagecount / pagesize)
+                , skip: true
+                , curr: 1
+                , jump: function (obj, first) {
+                    //得到了当前页，用于向服务端请求对应数据
+                    var curr = obj.curr;
+                    var datajson = {
+                        currpage: curr,
+                        pagesize: pagesize,
+                        UserId: $("#hide_UserId").val(),
+                        Name: $("#hide_Name").val()
+                    };
+                    $.ajax(
+                        {
+                            async: true,
+                            type: 'POST',
+                            dataType: 'json',
+                            url: '@Url.Action("GetData","UserInfo", new { area = "SystemFrame" })',
+                            data: datajson,
+                            success: function (datafield) {
+                                bindTable(datafield);
+                                layer.close(loadingFlag);
+                            }
+                        }
+                        );
+                }
+            });
+        });
+    }
+    function initData() {
+        queryData();
+    }
+
+    function bindTable(data) {
+        var tablehtml = "";
+        var items = data;
+        $.each(items, function (i) {
+            var sex = items[i].Sex == "1" ? "男" : "女";
+            var rolename = items[i].RoleName == null ? "" : items[i].RoleName;
+            tablehtml += "<tr>"
+            + "<td>" + items[i].UserId + "</td>"
+            + "<td>" + items[i].NickName + "</td>"
+            + "<td>" + items[i].Name + "</td>"
+            + "<td>" + sex + "</td>"
+            + "<td>" + items[i].Age + "</td>"
+            + "<td>" + rolename + "</td>"
+            + "<td><button class='layui-btn layui-btn-primary layui-btn-small' onclick='roleSet(&quot;" + items[i].UserId + "&quot;)'><i class='layui-icon'>&#xe614;</i> 分配角色</button>"
+            + "<button class='layui-btn layui-btn-warm layui-btn-small' onclick='editClick(&quot;" + items[i].UserId + "&quot;)'><i class='layui-icon'>&#xe642;</i> 编辑</button>"
+            + "<button class='layui-btn layui-btn-danger layui-btn-small' onclick='pwdReset(&quot;" + items[i].Id + "&quot;)'><i class='layui-icon'>&#xe628;</i> 重置密码</button>"
+            +"<button class='layui-btn layui-btn-danger layui-btn-small' onclick='deleteClick(&quot;" + items[i].Id + "&quot;)'><i class='layui-icon'>&#xe640;</i> 删除</button></td>"
+        + "</tr>";
+        });
+        $("#tableBody").html(tablehtml);
+    }
+    function roleSet(userid) {
+        layer.open({
+            type: 2,
+            title: '用户角色配置',
+            shade: 0.8,
+            closeBtn: 0,
+            area: ['600px', '500px'],
+            content: '@Url.Action("RoleSetPage", "UserInfo", new { area = "SystemFrame" })?UserId=' + userid + ''
+        });
+    }
+    function editClick(userid) {
+        layer.open({
+            type: 2,
+            title: '用户信息维护',
+            shade: 0.8,
+            closeBtn: 0,
+            area: ['600px', '500px'],
+            content: '@Url.Action("EditPage", "UserInfo", new { area = "SystemFrame" })?UserId=' + userid + ''
+        });
+    }
+    function deleteClick(id) {
+        layer.confirm('确定删除么？', {
+            btn: ['确定', '取消'], //按钮
+            icon: 3,
+            closeBtn: 0
+        }, function () {
+            $.ajax(
+                {
+                    async: false,
+                    type: 'POST',
+                    url: '@Url.Action("DeleteData", "UserInfo", new { area = "SystemFrame" })',
+                    data:
+                        {
+                            Id: id
+                        },
+                    success: function (datafield) {
+                        if (datafield == "success") {
+                            initData();
+                            layer.closeAll('dialog');
+                        }
+                    }
+                }
+                );
+        }, function () {
+
+        });
+    }
+    function pwdReset(id) {
+        layer.confirm('确定重置密码么？', {
+            btn: ['确定', '取消'], //按钮
+            icon: 3,
+            closeBtn: 0
+        }, function () {
+            var loadingFlag = layer.load(0, {
+                shade: [0.2, '#fff'] //0.1透明度的白色背景
+            });
+            $.ajax(
+                {
+                    async: false,
+                    type: 'POST',
+                    url: '@Url.Action("ResetPassword", "UserInfo", new { area = "SystemFrame" })',
+                    data:
+                        {
+                            Id: id
+                        },
+                    success: function (datafield) {
+                        layer.close(loadingFlag);
+                        if (datafield == "success") {
+                            initData();
+                            layer.closeAll('dialog');
+                            layer.msg('重置密码成功，默认密码为123456', { icon: 1 });
+                        }
+                    }
+                }
+                );
+        }, function () {
+
+        });
+    }
+    function addClick() {
+        layer.open({
+            type: 2,
+            title: '用户信息维护',
+            shade: 0.8,
+            closeBtn: 0,
+            area: ['600px', '500px'],
+            content: '@Url.Action("EditPage", "UserInfo", new { area = "SystemFrame" })'
+        });
+    }
+    function getPageCount() {
+        var ret = 0;
+        var datajson = {
+            UserId: $("#hide_UserId").val(),
+            Name: $("#hide_Name").val()
+        };
+        $.ajax(
+            {
+                async: false,
+                        type: 'POST',
+                        url: '@Url.Action("GetDataCount","UserInfo", new { area = "SystemFrame" })',
+                        data: datajson,
+                        success: function (datafield) {
+                            ret=datafield;
+                        }
+                    }
+                    );
+        return ret;
+    }
+</script>
+

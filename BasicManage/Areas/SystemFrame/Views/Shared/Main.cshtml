@@ -1,0 +1,176 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>@ViewBag.System_Name</title>
+    <link href="@Url.Content("~/js/layui/css/layui.css")" rel="stylesheet" />
+    <script src="@Url.Content("~/js/jquery.min.js")"></script>
+    <script src="@Url.Content("~/js/layui/layui.js")"></script>
+    <link href="@Url.Content("~/css/main.css")" rel="stylesheet" />
+</head>
+<body>
+    <!-- 布局容器 -->
+    <div class="layui-layout layui-layout-admin">
+        <!-- 头部 -->
+        <div class="layui-header">
+            <div class="layui-main ">
+                <!-- logo -->
+                <a href="#" style="color: #c2c2c2; font-size: 18px; line-height: 60px;">@ViewBag.System_Name</a>
+                <!-- 水平导航 -->
+                <ul class="layui-nav" style="position: absolute; top: 0; right: 0; background: none;">
+                    <li class="layui-nav-item">
+                        <a onclick="topClick(&quot;@ViewBag.RoleIndexPage&quot;)" href="javascript:;">
+                            返回首页
+                        </a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;">
+                            @BasicManage.Tool.UserInfo.GetInstance().NickName
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd>
+                                <a href="javascript:;" onclick="myInfo('@BasicManage.Tool.UserInfo.GetInstance().UserId')">
+                                    个人信息
+                                </a>
+                            </dd>
+                            <dd>
+                                <a href="javascript:;" onclick="editPwd('@BasicManage.Tool.UserInfo.GetInstance().UserId')">
+                                    修改密码
+                                </a>
+                            </dd>
+                            <dd>
+                                <a href="javascript:;" onclick="signOut();">
+                                    退出登录
+                                </a>
+                            </dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- 侧边栏 -->
+        <div class="layui-side layui-bg-black">
+            <div class="layui-side-scroll">
+                <ul class="layui-nav layui-nav-tree" id="MainNode">
+                   
+                </ul>
+            </div>
+        </div>
+        <!-- 主体 -->
+        <div class="layui-body" id="MainBody">
+            <iframe id="MainFrame" frameborder="0" scrolling="auto" width="100%" height="99%" ></iframe>
+        </div>
+        <!-- 底部 -->
+        <div class="layui-footer" style="text-align: center; line-height: 44px;">
+            @ViewBag.MainFooter
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    var layer;
+    function loadPower() {
+        $.ajax(
+                {
+                    async: false,
+                    type: 'POST',
+                    dataType:'json',
+                    url: '@Url.Action("GetPower", "Home", new { area = "SystemFrame" })',
+                    data:{},
+                    success: function (datafield) {
+                        bindPower(datafield);
+                        layui.use('element', function () {
+                            var element = layui.element();
+
+                        });
+                        }
+                }
+                );
+    }
+    
+    function bindPower(data) {
+        var htmlstr = "";
+        $.each(data, function (i) {
+            if (data[i].ParentNode == null || data[i].ParentNode == "") {
+                htmlstr += "<li class='layui-nav-item'>"
+                    + "<a href='javascript:;' >" + data[i].NodeName + "<span class='layui-nav-more'></span></a>"
+                    + "<dl class='layui-nav-child'>";
+                $.each(data, function (j) {
+                    if (data[j].ParentNode == data[i].NodeId) {
+                        htmlstr += "<dd><a href='javascript:;' onclick='LoadMainBody(&quot;" + data[j].NodeUrl + "&quot;)'>" + data[j].NodeName + "</a></dd>";
+                    }
+                });
+                htmlstr += "</dl>"
+                    + "</li>";
+            }
+        });
+        $("#MainNode").html(htmlstr);
+    }
+    function LoadMainBody(strurl) {
+        if (strurl == "") {
+            return;
+        }
+        //var lindex = layer.load(0, {
+        //    shade: [0.2, '#fff'] //0.1透明度的白色背景
+        //});
+        htmlobj = $.ajax({ url: strurl, async: false });
+        //$("#MainBody").html(htmlobj.responseText);
+        $("#MainFrame").prop("src", strurl);
+        //layer.close(lindex);
+    }
+    $(document).ready(function () {
+        layui.use('layer', function () {
+            layer = layui.layer;
+            loadPower();
+            topClick("@ViewBag.RoleIndexPage");
+        });
+    });
+    function myInfo(userid) {
+        layer.open({
+            type: 2,
+            title: '用户信息维护',
+            shade: 0.8,
+            closeBtn: 0,
+            area: ['600px', '500px'],
+            content: '@Url.Action("EditPage", "UserInfo",new { area="SystemFrame"})?UserId=' + userid + ''
+        });
+    }
+    function editPwd(userid) {
+        layer.open({
+            type: 2,
+            title: '用户密码维护',
+            shade: 0.8,
+            closeBtn: 0,
+            area: ['600px', '300px'],
+            content: '@Url.Action("PwdPage", "UserInfo", new { area = "SystemFrame" })?UserId=' + userid + ''
+        });
+    }
+    function initData() { }
+
+    function signOut() {
+        $.ajax(
+                {
+                    async: false,
+                    type: 'POST',
+                    url: '@Url.Action("SignOut", "Home", new { area = "SystemFrame" })',
+                    data: {},
+                    success: function (datafield) {
+                        window.location.href = "@Url.Action("Login","PRSignIn", new { area = "SystemFrame" })";  
+                    }
+                }
+                );
+    }
+    function topClick(strurl) {
+        if (strurl == "") {
+            LoadMainBody("@Url.Action("NormalIndex","OverView", new { area = "UserArea" })");
+        }
+        else {
+            LoadMainBody(strurl);
+        }
+    }
+</script>
