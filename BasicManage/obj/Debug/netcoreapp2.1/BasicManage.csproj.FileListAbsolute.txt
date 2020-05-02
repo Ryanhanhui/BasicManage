@@ -36,3 +36,4 @@ E:\VS2017\ASP.NET Core\BasicManage\BasicManage\obj\Debug\netcoreapp2.1\Razor\Are
 E:\VS2017\ASP.NET Core\BasicManage\BasicManage\obj\Debug\netcoreapp2.1\Razor\Areas\SystemFrame\Views\LoginImg\LoginImgIndex.g.cshtml.cs
 E:\VS2017\ASP.NET Core\BasicManage\BasicManage\obj\Debug\netcoreapp2.1\Razor\Areas\SystemFrame\Views\SysConfig\Index.g.cshtml.cs
 E:\VS2017\ASP.NET Core\BasicManage\BasicManage\obj\Debug\netcoreapp2.1\Razor\Areas\UserArea\Views\OverView\NormalIndex.g.cshtml.cs
+E:\VS2017\ASP.NET Core\BasicManage\BasicManage\obj\Debug\netcoreapp2.1\BasicManage.csprojAssemblyReference.cache
