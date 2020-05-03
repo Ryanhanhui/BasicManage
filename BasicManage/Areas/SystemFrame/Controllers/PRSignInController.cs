@@ -1,6 +1,7 @@
 ﻿using BasicManage.Areas.SystemFrame.LogicL;
 using BasicManage.Entities;
 using BasicManage.Tool;
+using BasicManage.Tool.Interface;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -17,29 +18,31 @@ namespace BasicManage.Areas.SystemFrame.Controllers
     {
         private readonly IConfiguration _config;
         private readonly MyDBContext _dbContext;
-        public PRSignInController(IConfiguration config,MyDBContext context)
+        private readonly ICacheHelper _cacheHelper;
+        public PRSignInController(IConfiguration config,MyDBContext context, ICacheHelper cacheHelper)
         {
             _config = config;
             _dbContext = context;
+            _cacheHelper = cacheHelper;
         }
         
         //
         // GET: /PRSignIn/
         public ActionResult Login()
         {
-            PRSignIn signin = new PRSignIn(_dbContext);
+            PRSignIn signin = new PRSignIn(_dbContext, _cacheHelper);
             ViewBag.SysDown = _config["DownLoadPath:SysDown"].ToString();
             SYS_SystemConfigInfo sysconfig = signin.GetFooter();
             ViewBag.LoginFooter = sysconfig.LoginFooter;
             ViewBag.System_Name = sysconfig.System_Name;
-            LoginImg imgfunc = new LoginImg(_dbContext);
+            LoginImg imgfunc = new LoginImg(_dbContext, _cacheHelper);
             ViewBag.BgImgs = imgfunc.GetAllData();
             return View();
         }
         [HttpPost]
         public async System.Threading.Tasks.Task<string> LoginConfirm(string username,string pwd)
         {
-            PRSignIn signin = new PRSignIn(_dbContext);
+            PRSignIn signin = new PRSignIn(_dbContext, _cacheHelper);
             bool result = signin.LoginConfirm(username, pwd,HttpContext.Connection.RemoteIpAddress.ToString());
             if (result)
             {
@@ -52,7 +55,7 @@ namespace BasicManage.Areas.SystemFrame.Controllers
                 userdata.Name = musers.Name;
                 userdata.RoleType = musers.RoleType;
                 userdata.UserType = musers.UserType;
-                RoleManage roleMa = new RoleManage(_dbContext);
+                RoleManage roleMa = new RoleManage(_dbContext, _cacheHelper);
                 userdata.RoleIndexPage = roleMa.GetDetailObj(musers.RoleType).RoleIndexPage;
                 //权限控制、身份认证
                 Claim[] clainms = new[] { new Claim(musers.UserId + mguid, userdata.GetUserString()) };

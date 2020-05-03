@@ -1,5 +1,6 @@
 ﻿using BasicManage.Entities;
 using BasicManage.Tool;
+using BasicManage.Tool.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +16,12 @@ namespace BasicManage.Areas.SystemFrame.Controllers
         private readonly MyDBContext _dbContext;
         PublicUtil util;
         BasicManage.Areas.SystemFrame.LogicL.RoleManage roleManage;
-        public RoleManageController(MyDBContext context)
+        private readonly ICacheHelper _cacheHelper;
+        public RoleManageController(MyDBContext context, ICacheHelper cacheHelper)
         {
             _dbContext = context;
-            roleManage = new LogicL.RoleManage(_dbContext);
+            _cacheHelper = cacheHelper;
+            roleManage = new LogicL.RoleManage(_dbContext, _cacheHelper);
             util = new PublicUtil();
         }
         //

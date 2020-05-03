@@ -52,7 +52,7 @@ namespace AspNetCore
             WriteLiteral("\r\n<!DOCTYPE html>\r\n\r\n<html>\r\n");
             EndContext();
             BeginContext(58, 385, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("head", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "a17f5baf9b5548f19e156afc268e130a", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("head", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "2f9742efb8cd42ff8adcc37209b11138", async() => {
                 BeginContext(64, 104, true);
                 WriteLiteral("\r\n    <meta name=\"viewport\" content=\"width=device-width\" />\r\n    <title>LoginLogIndex</title>\r\n    <link");
                 EndContext();
@@ -112,7 +112,7 @@ WriteAttributeValue("", 383, Url.Content("~/css/main.css"), 383, 30, false);
             WriteLiteral("\r\n");
             EndContext();
             BeginContext(445, 2747, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "0490a31f68f44be4b357266a08fa13f2", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "1f01e918f53b424bb8ef7ce23a787ad3", async() => {
                 BeginContext(451, 2734, true);
                 WriteLiteral(@"
     <fieldset class=""layui-elem-field layui-field-title"" style=""margin-top: 20px;"">

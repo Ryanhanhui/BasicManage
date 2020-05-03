@@ -52,7 +52,7 @@ namespace AspNetCore
             WriteLiteral("\r\n<!DOCTYPE html>\r\n\r\n<html>\r\n");
             EndContext();
             BeginContext(58, 307, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("head", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "e6a2162912a647d19acb41f5342017c1", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("head", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "e9d49dc8b6e041db87285eafa60d13df", async() => {
                 BeginContext(64, 95, true);
                 WriteLiteral("\r\n    <meta name=\"viewport\" content=\"width=device-width\" />\r\n    <title>用户信息</title>\r\n    <link");
                 EndContext();
@@ -102,7 +102,7 @@ WriteAttributeValue("", 310, Url.Content("~/js/layui/layui.js"), 310, 35, false)
             WriteLiteral("\r\n");
             EndContext();
             BeginContext(367, 2905, false);
-            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "97ed8818308a4b3f87a454a149637240", async() => {
+            __tagHelperExecutionContext = __tagHelperScopeManager.Begin("body", global::Microsoft.AspNetCore.Razor.TagHelpers.TagMode.StartTagAndEndTag, "e0cb5b1e8f9c4d759eb24e5a0a53d6d9", async() => {
                 BeginContext(373, 406, true);
                 WriteLiteral(@"
     <div style=""margin-top:20px;"">

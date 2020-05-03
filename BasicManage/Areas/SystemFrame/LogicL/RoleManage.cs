@@ -1,5 +1,6 @@
 ﻿using BasicManage.Entities;
 using BasicManage.Tool;
+using BasicManage.Tool.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
@@ -12,9 +13,12 @@ namespace BasicManage.Areas.SystemFrame.LogicL
     {
         PublicUtil putil = new PublicUtil();
         private readonly MyDBContext mdb;
-        public RoleManage(MyDBContext _context)
+        private readonly ICacheHelper cacheHelper;
+        private const string tableCacheKey = "SYS_RoleInfo";
+        public RoleManage(MyDBContext _context, ICacheHelper _cacheHelper)
         {
             mdb = _context;
+            cacheHelper = _cacheHelper;
         }
         /// <summary>
         /// 获取列表数据
@@ -23,9 +27,12 @@ namespace BasicManage.Areas.SystemFrame.LogicL
         /// <param name="pagesize">每一页个数</param>
         /// <returns>数据列表json</returns>
         public string GetData(int currpage, int pagesize)
-        {
-            List<SYS_RoleInfo> sysRoleInfo =
-                mdb.SYS_RoleInfo.OrderBy(u => u.RoleName).Skip((currpage - 1) * pagesize).Take(pagesize).ToList();
+        { 
+            List<SYS_RoleInfo> sysRoleInfo = null;
+            if (cacheHelper.Exists(tableCacheKey))
+                sysRoleInfo = cacheHelper.GetCache<List<SYS_RoleInfo>>(tableCacheKey).OrderBy(u => u.RoleName).Skip((currpage - 1) * pagesize).Take(pagesize).ToList();
+            else
+                sysRoleInfo = mdb.SYS_RoleInfo.OrderBy(u => u.RoleName).Skip((currpage - 1) * pagesize).Take(pagesize).ToList();
             return putil.GetJsonData(sysRoleInfo);
         }
         /// <summary>
@@ -34,7 +41,10 @@ namespace BasicManage.Areas.SystemFrame.LogicL
         /// <returns></returns>
         public int GetDataCount()
         {
-            return mdb.SYS_RoleInfo.OrderBy(u => u.RoleName).ToList().Count;
+            if (cacheHelper.Exists(tableCacheKey))
+                return cacheHelper.GetCache<List<SYS_RoleInfo>>(tableCacheKey).ToList().Count;
+            else
+                return mdb.SYS_RoleInfo.ToList().Count;
         }
         /// <summary>
         /// 
@@ -45,7 +55,11 @@ namespace BasicManage.Areas.SystemFrame.LogicL
         {
             if (string.IsNullOrEmpty(Id))
                 return string.Empty;
-            SYS_RoleInfo sysRoleInfo = mdb.SYS_RoleInfo.Where(u => u.Id == Id).ToList().SingleOrDefault();
+            SYS_RoleInfo sysRoleInfo = null;
+            if (cacheHelper.Exists(tableCacheKey))
+                sysRoleInfo = cacheHelper.GetCache<List<SYS_RoleInfo>>(tableCacheKey).Where(u => u.Id == Id).ToList().FirstOrDefault();
+            else
+                sysRoleInfo = mdb.SYS_RoleInfo.Where(u => u.Id == Id).ToList().FirstOrDefault();
             return putil.GetJsonData(sysRoleInfo);
         }
         /// <summary>
@@ -57,7 +71,11 @@ namespace BasicManage.Areas.SystemFrame.LogicL
         {
             if (string.IsNullOrEmpty(Id))
                 return new SYS_RoleInfo();
-            SYS_RoleInfo sysRoleInfo = mdb.SYS_RoleInfo.Where(u => u.Id == Id).ToList().SingleOrDefault();
+            SYS_RoleInfo sysRoleInfo = null;
+            if (cacheHelper.Exists(tableCacheKey))
+                sysRoleInfo = cacheHelper.GetCache<List<SYS_RoleInfo>>(tableCacheKey).Where(u => u.Id == Id).ToList().FirstOrDefault();
+            else
+                sysRoleInfo = mdb.SYS_RoleInfo.Where(u => u.Id == Id).ToList().FirstOrDefault();
             return sysRoleInfo;
         }
         /// <summary>
@@ -76,6 +94,8 @@ namespace BasicManage.Areas.SystemFrame.LogicL
                 int ret = mdb.SaveChanges();
                 if (ret != 0)
                 {
+                    cacheHelper.SetCache(tableCacheKey, mdb.SYS_RoleInfo.ToList());
+                    cacheHelper.SetCache("v_getuserpower", mdb.v_getuserpower.ToList());
                     LogHandle.GetInstance().Info("【添加数据】" + BasicManage.Tool.UserInfo.GetInstance().UserId + " 添加角色信息", GetType().ToString());
                     return "success";
                 }
@@ -90,12 +110,12 @@ namespace BasicManage.Areas.SystemFrame.LogicL
         }
         private bool IsExists(SYS_RoleInfo sysRoleInfo)
         {
-            int ncount = mdb.SYS_RoleInfo.Where(u => u.RoleName.Equals(sysRoleInfo.RoleName)).ToList().Count;
-
-            if (ncount > 0)
-                return false;
+            int ncount = 0;
+            if (cacheHelper.Exists(tableCacheKey))
+                ncount = cacheHelper.GetCache<List<SYS_RoleInfo>>(tableCacheKey).Where(u => u.RoleName.Equals(sysRoleInfo.RoleName)).ToList().Count;
             else
-                return true;
+                ncount = mdb.SYS_RoleInfo.Where(u => u.RoleName.Equals(sysRoleInfo.RoleName)).ToList().Count;
+            return !(ncount > 0);
         }
         /// <summary>
         /// 更新数据
@@ -113,6 +133,8 @@ namespace BasicManage.Areas.SystemFrame.LogicL
                 int ret = mdb.SaveChanges();
                 if (ret != 0)
                 {
+                    cacheHelper.SetCache(tableCacheKey, mdb.SYS_RoleInfo.ToList());
+                    cacheHelper.SetCache("v_getuserpower", mdb.v_getuserpower.ToList());
                     LogHandle.GetInstance().Info("【更新数据】" + BasicManage.Tool.UserInfo.GetInstance().UserId + " 更新角色信息", GetType().ToString());
                     return "success";
                 }
@@ -139,6 +161,8 @@ namespace BasicManage.Areas.SystemFrame.LogicL
                 int ret = mdb.SaveChanges();
                 if (ret != 0)
                 {
+                    cacheHelper.SetCache(tableCacheKey, mdb.SYS_RoleInfo.ToList());
+                    cacheHelper.SetCache("v_getuserpower", mdb.v_getuserpower.ToList());
                     LogHandle.GetInstance().Info("【删除数据】"+ BasicManage.Tool.UserInfo.GetInstance().UserId+" 删除角色数据", GetType().ToString());
                     return "success";
                 }
@@ -158,7 +182,11 @@ namespace BasicManage.Areas.SystemFrame.LogicL
         /// <returns>节点集合</returns>
         public string GetRolePower(string roleId)
         {
-            List<SYS_RolePower> sysRolePower = mdb.SYS_RolePower.Where(u => u.RoleId == roleId).ToList();
+            List<SYS_RolePower> sysRolePower = null;
+            if (cacheHelper.Exists("SYS_RolePower"))
+                sysRolePower = cacheHelper.GetCache<List<SYS_RolePower>>("SYS_RolePower").Where(u => u.RoleId == roleId).ToList();
+            else
+                sysRolePower = mdb.SYS_RolePower.Where(u => u.RoleId == roleId).ToList();
             return putil.GetJsonData(sysRolePower);
         }
         /// <summary>
@@ -179,6 +207,8 @@ namespace BasicManage.Areas.SystemFrame.LogicL
                 int ret = mdb.SaveChanges();
                 if (ret != 0)
                 {
+                    cacheHelper.SetCache("SYS_RolePower", mdb.SYS_RolePower.ToList());
+                    cacheHelper.SetCache("v_getuserpower", mdb.v_getuserpower.ToList());
                     LogHandle.GetInstance().Info("【更新数据】" + BasicManage.Tool.UserInfo.GetInstance().UserId + " 更新角色权限", GetType().ToString());
                     return "success";
                 }

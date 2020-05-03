@@ -1,6 +1,7 @@
 ﻿using BasicManage.Areas.SystemFrame.LogicL;
 using BasicManage.Entities;
 using BasicManage.Tool;
+using BasicManage.Tool.Interface;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,13 @@ namespace BasicManage.Areas.SystemFrame.Controllers
         private readonly MyDBContext _dbContext;
         PublicUtil util ;
         Home home ;
-        public HomeController(MyDBContext context)
+        private readonly ICacheHelper _cacheHelper;
+        public HomeController(MyDBContext context, ICacheHelper cacheHelper)
         {
             _dbContext = context;
+            _cacheHelper = cacheHelper;
             util = new PublicUtil();
-            home = new Home(_dbContext);
+            home = new Home(_dbContext, _cacheHelper);
         }
         //
         // GET: /Home/

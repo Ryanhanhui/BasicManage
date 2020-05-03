@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using BasicManage.Tool.Interface;
 
 namespace BasicManage.Areas.SystemFrame.LogicL
 {
@@ -16,9 +17,11 @@ namespace BasicManage.Areas.SystemFrame.LogicL
     {
         private readonly MyDBContext mdb;
         PublicUtil putil = new PublicUtil();
-        public PRSignIn(MyDBContext _context)
+        private readonly ICacheHelper cacheHelper;
+        public PRSignIn(MyDBContext _context, ICacheHelper _cacheHelper)
         {
             mdb = _context;
+            cacheHelper = _cacheHelper;
         }
         /// <summary>
         /// 获取登录页页脚
@@ -26,7 +29,7 @@ namespace BasicManage.Areas.SystemFrame.LogicL
         /// <returns></returns>
         public SYS_SystemConfigInfo GetFooter()
         {
-            SYS_SystemConfigInfo sysconfig = mdb.SYS_SystemConfigInfo.ToList().FirstOrDefault();
+            SYS_SystemConfigInfo sysconfig = (new SysConfig(mdb, cacheHelper)).GetBindData();
             return sysconfig;
         }
         /// <summary>

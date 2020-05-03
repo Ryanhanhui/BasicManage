@@ -1,5 +1,6 @@
 ﻿using BasicManage.Entities;
 using BasicManage.Tool;
+using BasicManage.Tool.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -18,12 +19,14 @@ namespace BasicManage.Areas.SystemFrame.Controllers
         private readonly IHostingEnvironment _host;
         PublicUtil util;
         BasicManage.Areas.SystemFrame.LogicL.LoginImg lgimg ;
-        public LoginImgController(MyDBContext context, IConfiguration config, IHostingEnvironment host)
+        private readonly ICacheHelper _cacheHelper;
+        public LoginImgController(MyDBContext context, IConfiguration config, IHostingEnvironment host, ICacheHelper cacheHelper)
         {
             _dbContext = context;
             _config = config;
             _host = host;
-            lgimg = new LogicL.LoginImg(_dbContext);
+            _cacheHelper = cacheHelper;
+            lgimg = new LogicL.LoginImg(_dbContext,_cacheHelper);
             util = new PublicUtil();
         }
         //

@@ -1,5 +1,6 @@
 ﻿using BasicManage.Entities;
 using BasicManage.Tool;
+using BasicManage.Tool.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,12 @@ namespace BasicManage.Areas.SystemFrame.Controllers
         private readonly MyDBContext _dbContext;
         PublicUtil util;
         BasicManage.Areas.SystemFrame.LogicL.NodeManage nodeManage;
-        public NodeManageController(MyDBContext context)
+        private readonly ICacheHelper _cacheHelper;
+        public NodeManageController(MyDBContext context, ICacheHelper cacheHelper)
         {
             _dbContext = context;
-            nodeManage = new LogicL.NodeManage(_dbContext);
+            _cacheHelper = cacheHelper;
+            nodeManage = new LogicL.NodeManage(_dbContext, _cacheHelper);
             util = new PublicUtil();
         }
         //

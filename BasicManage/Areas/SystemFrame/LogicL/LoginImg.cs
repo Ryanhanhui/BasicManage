@@ -1,5 +1,6 @@
 ﻿using BasicManage.Entities;
 using BasicManage.Tool;
+using BasicManage.Tool.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +11,20 @@ namespace BasicManage.Areas.SystemFrame.LogicL
     public class LoginImg
     {
         private readonly MyDBContext mdb ;
-        public LoginImg(MyDBContext _context)
+        private readonly ICacheHelper cacheHelper;
+        private const string tableCacheKey = "SYS_LoginImg";
+        public LoginImg(MyDBContext _context, ICacheHelper _cacheHelper)
         {
             mdb = _context;
+            cacheHelper = _cacheHelper;
         }
         public List<SYS_LoginImg> GetAllData()
         {
-            List<SYS_LoginImg> imgs = mdb.SYS_LoginImg.OrderBy(u => u.ImgId).ToList();
+            List<SYS_LoginImg> imgs = null;
+            if (cacheHelper.Exists(tableCacheKey))
+                imgs = cacheHelper.GetCache<List<SYS_LoginImg>>(tableCacheKey).OrderBy(u => u.ImgId).ToList();
+            else
+                imgs = mdb.SYS_LoginImg.OrderBy(u => u.ImgId).ToList();
             return imgs;
         }
         public string AddData(string imgurl)
@@ -27,7 +35,10 @@ namespace BasicManage.Areas.SystemFrame.LogicL
             mdb.SYS_LoginImg.Add(limg);
             int ret = mdb.SaveChanges();
             if (ret != 0)
+            {
+                cacheHelper.SetCache(tableCacheKey, mdb.SYS_LoginImg.OrderBy(u => u.ImgId).ToList());
                 return "success";
+            }
             else
                 return "";
         }
@@ -40,6 +51,7 @@ namespace BasicManage.Areas.SystemFrame.LogicL
                 int ret = mdb.SaveChanges();
                 if (ret != 0)
                 {
+                    cacheHelper.SetCache(tableCacheKey, mdb.SYS_LoginImg.OrderBy(u => u.ImgId).ToList());
                     LogHandle.GetInstance().Info("【删除数据】" + BasicManage.Tool.UserInfo.GetInstance().UserId + " 删除登录图片", GetType().ToString());
                     return "success";
                 }

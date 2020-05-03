@@ -1,5 +1,6 @@
 ﻿using BasicManage.Entities;
 using BasicManage.Tool;
+using BasicManage.Tool.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +15,13 @@ namespace BasicManage.Areas.SystemFrame.Controllers
         private readonly IConfiguration _config;
         PublicUtil util;
         BasicManage.Areas.SystemFrame.LogicL.SysConfig sysConfig;
-        public SysConfigController(MyDBContext context, IConfiguration config)
+        private readonly ICacheHelper _cacheHelper;
+        public SysConfigController(MyDBContext context, IConfiguration config, ICacheHelper cacheHelper)
         {
             _dbContext = context;
             _config = config;
-            sysConfig = new LogicL.SysConfig(_dbContext);
+            _cacheHelper = cacheHelper;
+            sysConfig = new LogicL.SysConfig(_dbContext, _cacheHelper);
             util = new PublicUtil();
         }
         //
