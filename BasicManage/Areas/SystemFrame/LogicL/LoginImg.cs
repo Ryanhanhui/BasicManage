@@ -36,7 +36,7 @@ namespace BasicManage.Areas.SystemFrame.LogicL
             int ret = mdb.SaveChanges();
             if (ret != 0)
             {
-                cacheHelper.SetCache(tableCacheKey, mdb.SYS_LoginImg.OrderBy(u => u.ImgId).ToList());
+                cacheHelper.SetCache(tableCacheKey, mdb.SYS_LoginImg.ToList());
                 return "success";
             }
             else
@@ -51,7 +51,7 @@ namespace BasicManage.Areas.SystemFrame.LogicL
                 int ret = mdb.SaveChanges();
                 if (ret != 0)
                 {
-                    cacheHelper.SetCache(tableCacheKey, mdb.SYS_LoginImg.OrderBy(u => u.ImgId).ToList());
+                    cacheHelper.SetCache(tableCacheKey, mdb.SYS_LoginImg.ToList());
                     LogHandle.GetInstance().Info("【删除数据】" + BasicManage.Tool.UserInfo.GetInstance().UserId + " 删除登录图片", GetType().ToString());
                     return "success";
                 }

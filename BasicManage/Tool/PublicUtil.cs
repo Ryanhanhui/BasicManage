@@ -15,6 +15,7 @@ using System.Globalization;
 using System.ComponentModel.DataAnnotations;
 using NPOI.HSSF.UserModel;
 using System.Data;
+using BasicManage.Tool.Interface;
 
 namespace BasicManage.Tool
 {
@@ -59,16 +60,24 @@ namespace BasicManage.Tool
         /// </summary>
         /// <param name="url">请求的地址</param>
         /// <returns>是否具有请求地址的权限</returns>
-        public bool CheckPower(string url, MyDBContext mdb)
+        public bool CheckPower(string url, MyDBContext mdb, ICacheHelper cacheHelper)
         {
             if (!CheckLoginState())
                 return false;
             string usertype = UserInfo.GetInstance().UserType;
             string roletype = UserInfo.GetInstance().RoleType;
-            List<v_getuserpower> powerlist = mdb.v_getuserpower.Where(u => u.RoleId.Equals(roletype) && u.NodeType.Equals("0")).ToList();
+            List<v_getuserpower> powerlist = null;
+            if (cacheHelper.Exists("v_getuserpower"))
+                powerlist = cacheHelper.GetCache<List<v_getuserpower>>("v_getuserpower").Where(u => u.RoleId.Equals(roletype) && u.NodeType.Equals("0")).ToList();
+            else
+                powerlist = mdb.v_getuserpower.Where(u => u.RoleId.Equals(roletype) && u.NodeType.Equals("0")).ToList();
             if (usertype.Equals("1"))
             {
-                List<v_getuserpower> tmplist = mdb.v_getuserpower.Where(u => u.NodeType.Equals("1")).ToList();
+                List<v_getuserpower> tmplist = null;
+                if (cacheHelper.Exists("v_getuserpower"))
+                    tmplist = cacheHelper.GetCache<List<v_getuserpower>>("v_getuserpower").Where(u => u.NodeType.Equals("1")).ToList();
+                else
+                    tmplist = mdb.v_getuserpower.Where(u => u.NodeType.Equals("1")).ToList();
                 if (powerlist == null)
                     powerlist = tmplist;
                 else
@@ -278,6 +287,15 @@ namespace BasicManage.Tool
                     break;
             }
             return remarks;
+        }
+        public void ReloadCache(MyDBContext mdb, ICacheHelper cacheHelper)
+        {
+            cacheHelper.SetCache("SYS_LoginImg", mdb.SYS_LoginImg.ToList());
+            cacheHelper.SetCache("NodeSetInfo", mdb.NodeSetInfo.ToList());
+            cacheHelper.SetCache("v_getuserpower", mdb.v_getuserpower.ToList());
+            cacheHelper.SetCache("SYS_RoleInfo", mdb.SYS_RoleInfo.ToList());
+            cacheHelper.SetCache("SYS_RolePower", mdb.SYS_RolePower.ToList());
+            cacheHelper.SetCache("SYS_SystemConfigInfo", mdb.SYS_SystemConfigInfo.ToList().FirstOrDefault());
         }
     }
 }

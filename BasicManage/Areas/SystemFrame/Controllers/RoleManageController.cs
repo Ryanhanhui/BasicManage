@@ -29,7 +29,7 @@ namespace BasicManage.Areas.SystemFrame.Controllers
         [Authorize]
         public ActionResult Index()
         {
-            if (!util.CheckPower(Request.GetEncodedUrl(), _dbContext))
+            if (!util.CheckPower(Request.GetEncodedUrl(), _dbContext, _cacheHelper))
                 return PartialView("WithoutPower");
             ViewBag.PageCount = roleManage.GetDataCount();
             return PartialView();

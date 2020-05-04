@@ -1,6 +1,7 @@
 ﻿
 using BasicManage.Entities;
 using BasicManage.Tool;
+using BasicManage.Tool.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,11 @@ namespace BasicManage.Areas.SystemFrame.Controllers
         private readonly MyDBContext _dbContext;
         PublicUtil util;
         BasicManage.Areas.SystemFrame.LogicL.UserInfo usi;
-        public UserInfoController(MyDBContext context)
+        private readonly ICacheHelper _cacheHelper;
+        public UserInfoController(MyDBContext context, ICacheHelper cacheHelper)
         {
             _dbContext = context;
+            _cacheHelper = cacheHelper;
             usi = new LogicL.UserInfo(_dbContext);
             util = new PublicUtil();
         }
@@ -24,7 +27,7 @@ namespace BasicManage.Areas.SystemFrame.Controllers
         [Authorize]
         public ActionResult Index()
         {
-            if (!util.CheckPower(Request.GetEncodedUrl(),_dbContext))
+            if (!util.CheckPower(Request.GetEncodedUrl(),_dbContext, _cacheHelper))
                 return PartialView("WithoutPower");
             ViewBag.PageCount = usi.GetDataCount();
             return PartialView();

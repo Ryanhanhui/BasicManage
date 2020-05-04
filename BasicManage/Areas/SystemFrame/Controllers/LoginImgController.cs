@@ -34,7 +34,7 @@ namespace BasicManage.Areas.SystemFrame.Controllers
         [Authorize]
         public ActionResult LoginImgIndex()
         {
-            if (!util.CheckPower(Request.GetEncodedUrl(), _dbContext))
+            if (!util.CheckPower(Request.GetEncodedUrl(), _dbContext, _cacheHelper))
                 return PartialView("WithoutPower");
             ViewBag.SysDown = _config["DownLoadPath:SysDown"].ToString();
             ViewBag.Model = lgimg.GetAllData();

@@ -106,6 +106,7 @@
             var username = $("#Username").val();
             var password = $("#Password").val();
             if (username == "") {
+                layer.close(loadingFlag);
                 layer.tips('请输入用户名', '#Username', {
                     tips: [2, '#ff0000'],
                     time: 3000
@@ -113,6 +114,7 @@
                 return;
             }
             if (password == "") {
+                layer.close(loadingFlag);
                 layer.tips('请输入密码', '#Password', {
                     tips: [2, '#ff0000'],
                     time: 3000
